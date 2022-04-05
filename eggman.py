@@ -21,13 +21,17 @@ class Eggman(discord.Client):
         return s.startswith(Eggman.cmd_prefix)
 
     @staticmethod
-    def is_valid_cmd(cmd):
-        return cmd in Eggman.cmd_strings
-
-    @staticmethod
     def is_msg_for_eggman(msg):
         if (len(msg) < len(Eggman.msg_prefix)): return False
         return msg.startswith(Eggman.msg_prefix)
+
+    @staticmethod
+    def is_arg_str_start(s):
+        return s.startswith('"')
+
+    @staticmethod
+    def is_arg_str_end(s):
+        return s.endswith('"')
 
     @staticmethod
     def tokenize_msg(s):
@@ -43,7 +47,8 @@ class Eggman(discord.Client):
         argslist = []
         curr_cmd = None
         curr_arglist = None
-        
+        curr_arg = None
+
         for token in tokens:
             s = str(token)
             if (not Eggman.is_msg_prefix(s)):
@@ -54,7 +59,17 @@ class Eggman(discord.Client):
                     curr_cmd = s.replace(Eggman.cmd_prefix, "")
                     curr_arglist = []
                 else:
-                    curr_arglist.append(s)
+                    if (Eggman.is_arg_str_start(s) and Eggman.is_arg_str_end(s)):
+                        curr_arglist.append(s.replace('"', ""))
+                    if (Eggman.is_arg_str_start(s)):
+                        curr_arg = s.replace('"', "")
+                    elif (Eggman.is_arg_str_end(s)):
+                        curr_arg += " " + s.replace('"', "")
+                        curr_arglist.append(curr_arg)
+                    elif (curr_arg is not None):
+                        curr_arg += " " + s
+                    else:
+                        curr_arglist.append(s)
         if (curr_cmd is not None):
             cmdlist.append(curr_cmd)
             argslist.append(tuple(curr_arglist))
@@ -75,6 +90,9 @@ class Eggman(discord.Client):
             await self.exec_cmd(dmsg, cmd, args)
 
     async def exec_cmd(self, dmsg, cmd, args):
+        if (not Eggman.is_valid_cmd(cmd)):
+            await dmsg.channel.send(f"{cmd} is not a valid eggman command")
+            return
         cmd_meth = Eggman.cmd_fns[cmd]
         await cmd_meth(self, dmsg, args)
     
@@ -113,6 +131,10 @@ class Eggman(discord.Client):
         await dmsg.channel.send(f"{send_str}")
 
     async def echo(self, dmsg, args):
+        if (len(args) == 0):
+            await dmsg.channel.send(f"`echo` takes at minimum 1 argument")
+            return
+        
         await dmsg.channel.send(f"{' '.join(args)}")
 
     async def ping(self, dmsg, args):
@@ -125,6 +147,10 @@ class Eggman(discord.Client):
         "echo": echo,
         "ping": ping
     }
+
+    @staticmethod
+    def is_valid_cmd(cmd):
+        return cmd in Eggman.cmd_fns.keys()
 
 
 if __name__ == "__main__":
