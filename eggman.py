@@ -58,7 +58,7 @@ class Eggman(discord.Client):
                         argslist.append(tuple(curr_arglist))
                     curr_cmd = s.replace(Eggman.cmd_prefix, "")
                     curr_arglist = []
-                else:
+                elif (curr_arglist is not None):
                     if (Eggman.is_arg_str_start(s) and Eggman.is_arg_str_end(s)):
                         curr_arglist.append(s.replace('"', ""))
                     if (Eggman.is_arg_str_start(s)):
