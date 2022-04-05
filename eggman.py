@@ -156,6 +156,15 @@ class Eggman(discord.Client):
     async def gn(self, dmsg, args):
         await dmsg.channel.send(f"Goodnight, {dmsg.author.mention}. Sleep tight, don't let the bed bugs bite!")
 
+    cmd_fns = {
+        msg_prefix: egghelp,
+        "help": egghelp,
+        "greet": greet,
+        "echo": echo,
+        "ping": ping,
+        "gn": gn
+    }
+
     async def special_gn(self, dmsg):
         await dmsg.channel.send(f"Goodnight.")
 
@@ -165,16 +174,6 @@ class Eggman(discord.Client):
 
     async def egg(self, dmsg):
         await dmsg.channel.send(f":egg:")
-
-
-    cmd_fns = {
-        msg_prefix: egghelp,
-        "help": egghelp,
-        "greet": greet,
-        "echo": echo,
-        "ping": ping,
-        "gn": gn
-    }
 
     special_cmd_fns = {
         "hi eggman": special_hello,
