@@ -1,5 +1,4 @@
 import discord
-import itertools
 
 class Eggman(discord.Client):
     intents = discord.Intents.default()
@@ -19,6 +18,10 @@ class Eggman(discord.Client):
     @staticmethod
     def is_cmd(s):
         return s.startswith(Eggman.cmd_prefix)
+
+    @staticmethod
+    def is_special_cmd(s):
+        return s in Eggman.special_cmd_fns.keys()
 
     @staticmethod
     def is_msg_for_eggman(msg):
@@ -96,9 +99,16 @@ class Eggman(discord.Client):
         cmd_meth = Eggman.cmd_fns[cmd]
         await cmd_meth(self, dmsg, args)
     
+    async def exec_special_cmd(self, dmsg, cmd):
+        cmd_meth = Eggman.special_cmd_fns[cmd]
+        await cmd_meth(self, dmsg)
+
     async def on_message(self, dmsg):
         if (dmsg.author == self.user): return
         msg = dmsg.content
+        if (Eggman.is_special_cmd(msg)):
+            await self.exec_special_cmd(dmsg, msg)
+            return
         if (not Eggman.is_msg_for_eggman(msg)): return
         cmdlist, argslist = Eggman.parse_tokens(Eggman.tokenize_msg(msg))
         await self.exec_cmds(dmsg, cmdlist, argslist)
@@ -140,12 +150,38 @@ class Eggman(discord.Client):
     async def ping(self, dmsg, args):
         await dmsg.channel.send("pong")
 
+    async def hello(self, dmsg, args):
+        await dmsg.channel.send(f"Hi, {dmsg.author.mention}. I hope your day is going nicely. :cooking:")
+
+    async def gn(self, dmsg, args):
+        await dmsg.channel.send(f"Goodnight, {dmsg.author.mention}. Sleep tight, don't let the bed bugs bite!")
+
+    async def special_gn(self, dmsg):
+        await dmsg.channel.send(f"Goodnight.")
+
+    async def special_hello(self, dmsg):
+        await dmsg.channel.send(f"Hi!")
+
+
+    async def egg(self, dmsg):
+        await dmsg.channel.send(f":egg:")
+
+
     cmd_fns = {
         msg_prefix: egghelp,
         "help": egghelp,
         "greet": greet,
         "echo": echo,
-        "ping": ping
+        "ping": ping,
+        "gn": gn
+    }
+
+    special_cmd_fns = {
+        "hi eggman": special_hello,
+        "hello eggman": special_hello,
+        "goodnight eggman": special_gn,
+        "gn eggman": special_gn,
+        "egg": egg
     }
 
     @staticmethod
