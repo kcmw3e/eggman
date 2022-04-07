@@ -1,11 +1,15 @@
+from turtle import end_fill
 import discord
+import wordlestats
 
 class Eggman(discord.Client):
     intents = discord.Intents.default()
     intents.members = True
 
     token_filename = "token.txt"
-    
+
+    wordle_channel_name = "wordles"
+
     msg_prefix = "eggman"
     cmd_prefix = "!"
 
@@ -27,6 +31,10 @@ class Eggman(discord.Client):
     def is_msg_for_eggman(msg):
         if (len(msg) < len(Eggman.msg_prefix)): return False
         return msg.startswith(Eggman.msg_prefix)
+
+    @staticmethod
+    def is_msg_eggman_mention(msg):
+        return "eggman" in msg
 
     @staticmethod
     def is_arg_str_start(s):
@@ -82,6 +90,7 @@ class Eggman(discord.Client):
     def __init__(self, *args, **kwargs):
         
         with open(Eggman.token_filename, "r") as f: self.token = f.read()
+        self.wordle_stats = None
 
         super().__init__(*args, **kwargs, intents = Eggman.intents)
 
@@ -108,10 +117,12 @@ class Eggman(discord.Client):
         msg = dmsg.content
         if (Eggman.is_special_cmd(msg)):
             await self.exec_special_cmd(dmsg, msg)
-            return
-        if (not Eggman.is_msg_for_eggman(msg)): return
-        cmdlist, argslist = Eggman.parse_tokens(Eggman.tokenize_msg(msg))
-        await self.exec_cmds(dmsg, cmdlist, argslist)
+        elif (Eggman.is_msg_for_eggman(msg)):
+            cmdlist, argslist = Eggman.parse_tokens(Eggman.tokenize_msg(msg))
+            await self.exec_cmds(dmsg, cmdlist, argslist)
+        elif (Eggman.is_msg_eggman_mention(msg)):
+            await self.eggman_mentioned(dmsg)
+        
 
     async def egghelp(self, dmsg, args):
         await dmsg.channel.send(Eggman.help_str)
@@ -156,13 +167,50 @@ class Eggman(discord.Client):
     async def gn(self, dmsg, args):
         await dmsg.channel.send(f"Goodnight, {dmsg.author.mention}. Sleep tight, don't let the bed bugs bite!")
 
+    async def party_time(self, dmsg, args):
+        await dmsg.channel.send(f"It's party time!!!")
+        await dmsg.channel.send(f":partying_face::partying_face::partying_face:")
+        await dmsg.channel.send(f"Celebrate it!!!")
+        await dmsg.channel.send(f":tada::tada::tada:")
+        await dmsg.channel.send(f"Wooooooooohooooooooooo!")
+
+    async def compile_wordle_stats(self, dmsg):
+        chan = dmsg.channel
+        if (chan.name != Eggman.wordle_channel_name): return
+        
+        stats = dict() # list of authors
+        async for dmsg in chan.history(limit = None):
+            msg = dmsg.content
+            author = dmsg.author
+
+            if author not in stats.keys(): author_stats = stats[author] = wordlestats.Wordlestats(author)
+            author_stats = stats[author]
+            
+            wordle_result = wordlestats.Wordlestats.get_wordle_result(msg)
+            if (wordle_result == None): continue
+            
+            author_stats.add_wordle(*wordle_result)
+        self.wordle_stats = stats
+    
+        
+    async def show_wordle_stats(self, dmsg, args):
+        if (self.wordle_stats is None or True):
+            await self.compile_wordle_stats(dmsg)
+        await dmsg.channel.send(str(self.wordle_stats[dmsg.author]))
+
+
+
+
+
     cmd_fns = {
         msg_prefix: egghelp,
         "help": egghelp,
         "greet": greet,
         "echo": echo,
         "ping": ping,
-        "gn": gn
+        "gn": gn,
+        "party": party_time,
+        "stats": show_wordle_stats
     }
 
     async def special_gn(self, dmsg):
@@ -174,6 +222,9 @@ class Eggman(discord.Client):
 
     async def egg(self, dmsg):
         await dmsg.channel.send(f":egg:")
+
+    async def eggman_mentioned(self, dmsg):
+        await dmsg.channel.send(f"I'm eggman")
 
     special_cmd_fns = {
         "hi eggman": special_hello,
