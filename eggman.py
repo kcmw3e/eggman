@@ -29,6 +29,7 @@ class Eggman(discord.Client):
 
     token_filename = "token.txt"
 
+    guild_name = "Eggs Benedict Mafia"
     wordle_channel_name = "wordles"
 
     msg_prefix = "eggman"
@@ -109,11 +110,15 @@ class Eggman(discord.Client):
         return cmdlist, argslist
     
     def __init__(self, *args, **kwargs):
-        
         with open(Eggman.token_filename, "r") as f: self.token = f.read()
         self.wordle_stats = None
 
         super().__init__(*args, **kwargs, intents = Eggman.intents)
+        
+
+    async def on_ready(self):
+        self.guild = discord.utils.get(self.guilds, name = Eggman.guild_name)
+        self.wordle_channel = discord.utils.get(self.guild.channels, name = Eggman.wordle_channel_name)
 
     def run(self):
         super().run(self.token)
@@ -199,11 +204,8 @@ class Eggman(discord.Client):
         await dmsg.channel.send(f"Wooooooooohooooooooooo!")
 
     async def compile_wordle_stats(self, dmsg):
-        chan = dmsg.channel
-        if (chan.name != Eggman.wordle_channel_name): return
-        
         stats = dict()
-        async for dmsg in chan.history(limit = None):
+        async for dmsg in self.wordle_channel.history(limit = None):
             msg = dmsg.content
             author = dmsg.author
 
@@ -220,7 +222,12 @@ class Eggman(discord.Client):
     async def show_wordle_stats(self, dmsg, args):
         if (self.wordle_stats is None):
             await self.compile_wordle_stats(dmsg)
-        await dmsg.channel.send(str(self.wordle_stats[dmsg.author]))
+        author = None
+        if (args is not None and len(args) > 0):
+            author = discord.utils.get(self.users, name = args[0])
+        if (author is None): author = dmsg.author
+
+        await dmsg.channel.send(str(self.wordle_stats[author]))
 
 
     cmd_fns = {

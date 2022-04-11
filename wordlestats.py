@@ -128,10 +128,10 @@ class Wordlestats(object):
         curr_streak = 0
         prev_day = 0
         for day in sorted(days):
-            if (day - 1 == prev_day and self.wordles[day]["score"] != SCORE_FAILED_INT):
-                curr_streak += 1
-            else:
-                curr_streak = 0
+            score = self.wordles[day]["score"]
+            if (day - 1 == prev_day and score != SCORE_FAILED_INT): curr_streak += 1
+            elif score != SCORE_FAILED_INT: curr_streak = 1
+            else: curr_streak = 0
             prev_day = day
             longest_streak = max(longest_streak, curr_streak)
         self.longest_streak = longest_streak
