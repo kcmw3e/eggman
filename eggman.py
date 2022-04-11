@@ -20,7 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from turtle import end_fill
 import discord
 import wordlestats
 
@@ -144,6 +143,9 @@ class Eggman(discord.Client):
             await self.exec_cmds(dmsg, cmdlist, argslist)
         elif (Eggman.is_msg_eggman_mention(msg)):
             await self.eggman_mentioned(dmsg)
+        elif (wordlestats.Wordlestats.is_wordle_guess(msg)):
+            wordle_result = wordlestats.Wordlestats.get_wordle_result(msg)
+            self.wordle_stats[dmsg.author].add_wordle(*wordle_result)
         
 
     async def egghelp(self, dmsg, args):
@@ -200,7 +202,7 @@ class Eggman(discord.Client):
         chan = dmsg.channel
         if (chan.name != Eggman.wordle_channel_name): return
         
-        stats = dict() # list of authors
+        stats = dict()
         async for dmsg in chan.history(limit = None):
             msg = dmsg.content
             author = dmsg.author
@@ -216,12 +218,9 @@ class Eggman(discord.Client):
     
         
     async def show_wordle_stats(self, dmsg, args):
-        if (self.wordle_stats is None or True):
+        if (self.wordle_stats is None):
             await self.compile_wordle_stats(dmsg)
         await dmsg.channel.send(str(self.wordle_stats[dmsg.author]))
-
-
-
 
 
     cmd_fns = {

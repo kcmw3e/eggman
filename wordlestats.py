@@ -52,7 +52,6 @@ class Wordlestats(object):
         s = s.replace(":black_large_square:", "")
         return s == ""
 
-
     @staticmethod
     def get_wordle_result(s:str):
 
@@ -129,8 +128,10 @@ class Wordlestats(object):
         curr_streak = 0
         prev_day = 0
         for day in sorted(days):
-            if (day - 1 == prev_day): curr_streak += 1
-            else: curr_streak = 0
+            if (day - 1 == prev_day and self.wordles[day]["score"] != SCORE_FAILED_INT):
+                curr_streak += 1
+            else:
+                curr_streak = 0
             prev_day = day
             longest_streak = max(longest_streak, curr_streak)
         self.longest_streak = longest_streak
