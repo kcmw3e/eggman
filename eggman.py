@@ -251,6 +251,10 @@ class Eggman(discord.Client):
     async def egg(self, dmsg):
         await dmsg.channel.send(f":egg:")
 
+    async def effs_in_chat(self, dmsg):
+        await dmsg.channel.send(f"f")
+
+
     async def eggman_mentioned(self, dmsg):
         await dmsg.channel.send(f"I'm eggman")
 
@@ -259,7 +263,8 @@ class Eggman(discord.Client):
         "hello eggman": special_hello,
         "goodnight eggman": special_gn,
         "gn eggman": special_gn,
-        "egg": egg
+        "egg": egg,
+        "f": effs_in_chat
     }
 
     @staticmethod
