@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import discord
+
 INFO_LINE = 0
 PADDING_LINE = 1
 GUESS_LINES_START = 2
@@ -44,13 +46,21 @@ SCORE_OUTOF_CHAR_INDEX = 1
 SCORE_NUM_OUTOF_INDEX = 2
 SCORE_HARDMODE_CHAR_INDEX = 3
 
+GREEN_SQUARE =  "\U0001f7e9"
+BLACK_SQUARE =  "\u2b1b"
+YELLOW_SQUARE = "\U0001f7e8"
+
 class Wordlestats(object):
     @staticmethod
     def is_wordle_guess(s:str):
-        s = s.replace(":yellow_square:", "")
-        s = s.replace(":green_square:", "")
-        s = s.replace(":black_large_square:", "")
+        s = s.replace(YELLOW_SQUARE, "")
+        s = s.replace(GREEN_SQUARE, "")
+        s = s.replace(BLACK_SQUARE, "")
         return s == ""
+
+    @staticmethod
+    def is_wordle_result(s:str):
+        return Wordlestats.get_wordle_result(s) != None
 
     @staticmethod
     def get_wordle_result(s:str):
@@ -92,11 +102,10 @@ class Wordlestats(object):
 
         guesses = []
         for (i, guess_line) in enumerate(guess_lines):
-            if (not Wordlestats.is_wordle_guess):
+            if (not Wordlestats.is_wordle_guess(guess_line)):
                 if (i == 0): return None
                 break
             guesses.append(guess_line)
-
 
         # could grab stats on yellows, grays, etc from here, but leaving it at this for now
         result = {

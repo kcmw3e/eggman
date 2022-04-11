@@ -148,10 +148,10 @@ class Eggman(discord.Client):
             await self.exec_cmds(dmsg, cmdlist, argslist)
         elif (Eggman.is_msg_eggman_mention(msg)):
             await self.eggman_mentioned(dmsg)
-        elif (wordlestats.Wordlestats.is_wordle_guess(msg)):
+        elif (wordlestats.Wordlestats.is_wordle_result(msg)):
+            if (self.wordle_stats is None): await self.compile_wordle_stats()
             wordle_result = wordlestats.Wordlestats.get_wordle_result(msg)
-            self.wordle_stats[dmsg.author].add_wordle(*wordle_result)
-        
+            self.wordle_stats[dmsg.author].add_wordle(*wordle_result)        
 
     async def egghelp(self, dmsg, args):
         await dmsg.channel.send(Eggman.help_str)
@@ -203,7 +203,7 @@ class Eggman(discord.Client):
         await dmsg.channel.send(f":tada::tada::tada:")
         await dmsg.channel.send(f"Wooooooooohooooooooooo!")
 
-    async def compile_wordle_stats(self, dmsg):
+    async def compile_wordle_stats(self):
         stats = dict()
         async for dmsg in self.wordle_channel.history(limit = None):
             msg = dmsg.content
@@ -221,7 +221,7 @@ class Eggman(discord.Client):
         
     async def show_wordle_stats(self, dmsg, args):
         if (self.wordle_stats is None):
-            await self.compile_wordle_stats(dmsg)
+            await self.compile_wordle_stats()
         author = None
         if (args is not None and len(args) > 0):
             author = discord.utils.get(self.users, name = args[0])
