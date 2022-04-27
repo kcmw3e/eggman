@@ -229,6 +229,12 @@ class Eggman(discord.Client):
 
         await dmsg.channel.send(str(self.wordle_stats[author]))
 
+    async def fun_fact(self, dmsg, args):
+        await dmsg.channel.send(f"fun fact")
+    
+    async def thanks(self, dmsg, args):
+        await dmsg.channel.send(f"fThank you.")
+
 
     cmd_fns = {
         msg_prefix: egghelp,
@@ -238,7 +244,8 @@ class Eggman(discord.Client):
         "ping": ping,
         "gn": gn,
         "party": party_time,
-        "stats": show_wordle_stats
+        "stats": show_wordle_stats,
+        "thanks": thanks
     }
 
     async def special_gn(self, dmsg):
@@ -254,6 +261,8 @@ class Eggman(discord.Client):
     async def effs_in_chat(self, dmsg):
         await dmsg.channel.send(f"f")
 
+    async def ty(self, dmsg):
+        await dmsg.channel.send(f"You're welcom!")
 
     async def eggman_mentioned(self, dmsg):
         await dmsg.channel.send(f"I'm eggman")
@@ -264,7 +273,9 @@ class Eggman(discord.Client):
         "goodnight eggman": special_gn,
         "gn eggman": special_gn,
         "egg": egg,
-        "f": effs_in_chat
+        "f": effs_in_chat,
+        "ty eggman": ty,
+        "thanks eggman": ty
     }
 
     @staticmethod
