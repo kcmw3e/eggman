@@ -233,7 +233,7 @@ class Eggman(discord.Client):
         await dmsg.channel.send(f"fun fact")
     
     async def thanks(self, dmsg, args):
-        await dmsg.channel.send(f"fThank you.")
+        await dmsg.channel.send(f"Thank you.")
 
 
     cmd_fns = {
