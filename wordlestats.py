@@ -126,6 +126,9 @@ class Wordlestats(object):
         self.wordles[wordle_day] = wordle_result
         self.update_stats()
 
+    def num_wordles(self):
+        return len(self.wordles.keys())
+
     def update_stats(self):
         self.find_longest_streak()
         self.find_scorenums()
@@ -156,10 +159,10 @@ class Wordlestats(object):
     def __str__(self):
         return f"{self.author.name}'s wordle stats\n\
                  Longest streak: {self.longest_streak}\n\
-                 1s: {self.scorenums[0]}\n\
-                 2s: {self.scorenums[1]}\n\
-                 3s: {self.scorenums[2]}\n\
-                 4s: {self.scorenums[3]}\n\
-                 5s: {self.scorenums[4]}\n\
-                 6s: {self.scorenums[5]}\n\
-                 Xs: {self.scorenums[6]}\n"
+                 1s: {self.scorenums[0]:3d} ({(self.scorenums[0]/self.num_wordles()*100):2.2f}%)\n\
+                 2s: {self.scorenums[1]:3d} ({(self.scorenums[1]/self.num_wordles()*100):2.2f}%)\n\
+                 3s: {self.scorenums[2]:3d} ({(self.scorenums[2]/self.num_wordles()*100):2.2f}%)\n\
+                 4s: {self.scorenums[3]:3d} ({(self.scorenums[3]/self.num_wordles()*100):2.2f}%)\n\
+                 5s: {self.scorenums[4]:3d} ({(self.scorenums[4]/self.num_wordles()*100):2.2f}%)\n\
+                 6s: {self.scorenums[5]:3d} ({(self.scorenums[5]/self.num_wordles()*100):2.2f}%)\n\
+                 Xs: {self.scorenums[6]:3d} ({(self.scorenums[6]/self.num_wordles()*100):2.2f}%)\n"
