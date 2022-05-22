@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import math
+
 import discord
 
 INFO_LINE = 0
@@ -49,6 +51,18 @@ SCORE_HARDMODE_CHAR_INDEX = 3
 GREEN_SQUARE =  "\U0001f7e9"
 BLACK_SQUARE =  "\u2b1b"
 YELLOW_SQUARE = "\U0001f7e8"
+
+BOX_ONE = "1\ufe0f\u20e3"
+BOX_TWO = "2\ufe0f\u20e3"
+BOX_THREE = "3\ufe0f\u20e3"
+BOX_FOUR = "4\ufe0f\u20e3"
+BOX_FIVE = "5\ufe0f\u20e3"
+BOX_SIX = "6\ufe0f\u20e3"
+BOX_X = "\U0001f1fd"
+BOX_X_RED = "\u274c"
+BOX_X_BLACK = "\u2716\ufe0f"
+
+DISTRIBUTION_LEN = 20
 
 class Wordlestats(object):
     @staticmethod
@@ -121,6 +135,7 @@ class Wordlestats(object):
         self.wordles = dict()
         self.longest_streak = 0
         self.scorenums = [0, 0, 0, 0, 0, 0, 0]
+        self.scorecents = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
     def add_wordle(self, wordle_day, wordle_result):
         self.wordles[wordle_day] = wordle_result
@@ -132,6 +147,7 @@ class Wordlestats(object):
     def update_stats(self):
         self.find_longest_streak()
         self.find_scorenums()
+        self.find_scorecents()
 
     def find_longest_streak(self):
         days = list(self.wordles.keys())
@@ -153,16 +169,36 @@ class Wordlestats(object):
         for day in self.wordles.keys():
             wordle = self.wordles[day]
             score = wordle["score"]
-            scorenums[wordle["score"] - 1] += 1
+            scorenums[score - 1] += 1
         self.scorenums = scorenums
 
-    def __str__(self):
-        return f"{self.author.name}'s wordle stats\n\
-                 Longest streak: {self.longest_streak}\n\
-                 1s: {self.scorenums[0]:3d} ({(self.scorenums[0]/self.num_wordles()*100):2.2f}%)\n\
-                 2s: {self.scorenums[1]:3d} ({(self.scorenums[1]/self.num_wordles()*100):2.2f}%)\n\
-                 3s: {self.scorenums[2]:3d} ({(self.scorenums[2]/self.num_wordles()*100):2.2f}%)\n\
-                 4s: {self.scorenums[3]:3d} ({(self.scorenums[3]/self.num_wordles()*100):2.2f}%)\n\
-                 5s: {self.scorenums[4]:3d} ({(self.scorenums[4]/self.num_wordles()*100):2.2f}%)\n\
-                 6s: {self.scorenums[5]:3d} ({(self.scorenums[5]/self.num_wordles()*100):2.2f}%)\n\
-                 Xs: {self.scorenums[6]:3d} ({(self.scorenums[6]/self.num_wordles()*100):2.2f}%)\n"
+    def find_scorecents(self):
+        for i in range(len(self.scorenums)):
+            self.scorecents[i] = (self.scorenums[i]/self.num_wordles())*100
+
+    def stats_str(self, show_percent = False, show_dist = False):
+        stats = self.scorenums
+        
+        if (show_percent):
+            for i in range(len(self.scorecents)):
+                stats[i] = f"{self.scorecents[i]:.2f}"
+        
+        if (show_dist):
+            for i in range(len(self.scorecents)):
+                perc = self.scorecents[i]
+                greens = math.ceil(DISTRIBUTION_LEN*perc/100)
+                blacks = DISTRIBUTION_LEN - greens
+                squares = f"{GREEN_SQUARE*greens}{BLACK_SQUARE*blacks}"
+                stats[i] = squares
+        
+        s = f"{self.author.name}'s wordle stats\n\
+              Longest streak: {self.longest_streak}\n\
+              {BOX_ONE} {stats[0]}\n\
+              {BOX_TWO} {stats[1]}\n\
+              {BOX_THREE} {stats[2]}\n\
+              {BOX_FOUR} {stats[3]}\n\
+              {BOX_FIVE} {stats[4]}\n\
+              {BOX_SIX} {stats[5]}\n\
+              {BOX_X} {stats[6]}\n"
+
+        return s

@@ -222,12 +222,22 @@ class Eggman(discord.Client):
     async def show_wordle_stats(self, dmsg, args):
         if (self.wordle_stats is None):
             await self.compile_wordle_stats()
+        
         author = None
         if (args is not None and len(args) > 0):
             author = discord.utils.get(self.users, name = args[0])
         if (author is None): author = dmsg.author
 
-        await dmsg.channel.send(str(self.wordle_stats[author]))
+        show_perc = False
+        show_dist = False
+
+        if ("perc" in args):
+            show_perc = True
+        
+        if ("dist" in args):
+            show_dist = True
+
+        await dmsg.channel.send(self.wordle_stats[author].stats_str(show_perc, show_dist))
 
     async def fun_fact(self, dmsg, args):
         await dmsg.channel.send(f"fun fact")
