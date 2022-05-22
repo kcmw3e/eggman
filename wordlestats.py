@@ -48,6 +48,9 @@ SCORE_OUTOF_CHAR_INDEX = 1
 SCORE_NUM_OUTOF_INDEX = 2
 SCORE_HARDMODE_CHAR_INDEX = 3
 
+# for emoji unicodes:
+# https://carpedm20.github.io/emoji/all.html?enableList=enable_list_alias
+
 GREEN_SQUARE =  "\U0001f7e9"
 BLACK_SQUARE =  "\u2b1b"
 YELLOW_SQUARE = "\U0001f7e8"
